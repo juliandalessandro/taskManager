@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { errorCases, validUser, AUTH_MESSAGES } from "./fixtures/authTestData";
-import { LoginPage } from "./pages/LoginPage";
+import { errorCases, validUser, AUTH_MESSAGES } from "../fixtures/authTestData";
+import { LoginPage } from "../pages/LoginPage";
 
 let loginPage: LoginPage;
 
@@ -29,7 +29,7 @@ test.describe("Successful Login Cases", () => {
 
     });
 
-})
+});
 
 test.describe("Error Login Cases", async () => {
 
@@ -43,4 +43,4 @@ test.describe("Error Login Cases", async () => {
         })
     })
 
-})
+});

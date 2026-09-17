@@ -16,7 +16,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
             async authorize(credentials) {
                 if (!credentials?.identifier || !credentials?.password) {
-                    throw new Error("Missing credentials");
+                    // throw new Error("Missing credentials");
+                    return null;
                 }
 
                 const user = await prisma.user.findFirst({
@@ -34,7 +35,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 );
 
                 if (!user || !isValidPassword) {
-                    throw new Error("Invalid credentials");
+                    // throw new Error("Invalid credentials");
+                    return null;
                 }
 
                 return {
@@ -62,6 +64,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
     },
     pages: {
-        signIn: "/auth/signin",
+        signIn: "/login",
     },
 });
