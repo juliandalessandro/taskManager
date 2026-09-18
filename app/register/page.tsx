@@ -30,7 +30,7 @@ export default function RegisterPage() {
 
         if(!response.ok) {
             const body = await response.json();
-            setError(body.message || "Something went wrong");
+            setError(body.error || "Something went wrong");
             return;
         }
 
@@ -71,7 +71,7 @@ export default function RegisterPage() {
                     />
                     {error && (
                         <p 
-                            data-testid="register-error"
+                            data-testid="register-error-message"
                             className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
                         >
                             {error}
