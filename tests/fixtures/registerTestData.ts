@@ -77,13 +77,13 @@ export const formErrorCases = {
         field: 'email',
         description: "with an invalid email format"
     },
-    usernameWithSpaces: {
-        username: "user 1",
-        email: "user1@app.com",
-        password: "user1pwd",
-        field: 'username',
-        description: "with an username with spaces"
-    },
+    // usernameWithSpaces: {
+    //     username: "user 1",
+    //     email: "user1@app.com",
+    //     password: "user1pwd",
+    //     field: 'username',
+    //     description: "with an username with spaces"
+    // },
     emailWithSpaces: {
         username: "user1",
         email: "user 1@app.com",

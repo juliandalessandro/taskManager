@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { backendErrorCases, formErrorCases, generateUniqueUser } from "../../fixtures/registerTestData";
-import { RegisterPage } from "../../pages/RegisterPage";
+import { backendErrorCases, formErrorCases, generateUniqueUser } from "../fixtures/registerTestData";
+import { RegisterPage } from "../pages/RegisterPage";
 import { prisma } from "@/lib/prisma";
 
 let registerPage: RegisterPage;
