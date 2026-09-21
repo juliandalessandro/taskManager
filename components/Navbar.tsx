@@ -28,7 +28,7 @@ export function Navbar({ username }: { username: string }) {
 
     return (
 
-        <nav className="flex items-center justify-between bg-gray-900 px-6 py-4">
+        <nav className="flex items-center justify-between bg-zinc-900 px-6 py-4">
             
             <span className="text-lg font-semibold text-white">Task Manager</span>
 

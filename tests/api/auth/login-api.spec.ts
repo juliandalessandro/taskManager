@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { APIRequestContext } from "@playwright/test";
-import { validUser, errorCases } from '../fixtures/authTestData';
+import { validUser, errorCases } from '../../fixtures/authTestData';
 
 const BASE_URL = 'http://localhost:3000';
 

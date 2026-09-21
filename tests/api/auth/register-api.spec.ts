@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { generateUniqueUser } from '../fixtures/registerTestData';
+import { generateUniqueUser } from '../../fixtures/registerTestData';
 import { prisma } from '@/lib/prisma';
-import { backendErrorCases } from '../fixtures/registerTestData';
+import { backendErrorCases } from '../../fixtures/registerTestData';
 
 const BASE_URL = 'http://localhost:3000';
 
