@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-
+import { DeleteConfirmModal } from "@/components/DeleteConfirmModal";
 
 interface Task {
     id: number;
@@ -14,11 +14,50 @@ interface Task {
 export function TaskItem({ task } : { task: Task }) {
 
     const router = useRouter();
+    const editRef = useRef<HTMLDivElement>(null);
+
     const [isEditing, setIsEditing] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description ?? "");
 
+    const originalDescription = task.description ?? "";
+    const isDirty = title !== task.title || description !== originalDescription;
+
+    const cancelEdit = () => {
+        setTitle(task.title);
+        setDescription(originalDescription);
+        setIsEditing(false);
+    };
+
+    useEffect(() => {
+        
+        if (!isEditing) return;
+
+        function handleClickOutside(event: MouseEvent) {
+            if (editRef.current && !editRef.current.contains(event.target as Node)) {
+                cancelEdit();
+            };
+        };
+
+        function handleEscape(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                cancelEdit();
+            };
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleEscape);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleEscape);
+        };
+    }, [isEditing, title, description])
+
     const handleSave = async () => {
+
+        if(!isDirty) return;
 
         const response = await fetch(`/api/tasks/${task.id}`, {
             method: "PATCH",
@@ -60,8 +99,9 @@ export function TaskItem({ task } : { task: Task }) {
         if (!response.ok) {
             console.error("Failed to delete task:", await response.text());
             return;
-        }
+        };
         
+        setShowDeleteConfirm(false);
         router.refresh();
     }
 
@@ -69,6 +109,7 @@ export function TaskItem({ task } : { task: Task }) {
 
         return (
             <div
+                ref={editRef}
                 data-testid="task-item"
                 className="mb-4 break-inside-avoid rounded-xl border border-zinc-700 bg-zinc-800 p-4"
             >
@@ -90,8 +131,8 @@ export function TaskItem({ task } : { task: Task }) {
                     <button
                         type="button"
                         data-testid="task-cancel-edit-button"
-                        onClick={() => setIsEditing(false)}
-                        className="text-sm text-zinc-400 hover:text-zinc-200"
+                        onClick={cancelEdit}
+                        className="cursor-pointer rounded-lg border border-zinc-600 px-3 py-1 text-xs text-zinc-300 hover:bg-zinc-700"
                     >
                         Cancel
                     </button>
@@ -99,7 +140,8 @@ export function TaskItem({ task } : { task: Task }) {
                         type="button"
                         data-testid="task-save-button"
                         onClick={handleSave}
-                        className="text-sm font-medium text-zinc-100 hover:text-white"
+                        disabled={!isDirty}
+                        className="cursor-pointer rounded-lg border border-blue-900 px-3 py-1 text-xs font-medium text-blue-400 hover:bg-blue-950 hover:text-blue-300 disabled:cursor-not-allowed disabled:border-zinc-700 disabled:text-zinc-600 disabled:hover:bg-transparent"
                     >
                         Save
                     </button>
@@ -109,20 +151,21 @@ export function TaskItem({ task } : { task: Task }) {
     }
 
     return (
+        <>
         <div
             data-testid="task-item"
             className="group relative mb-4 break-inside-avoid rounded-xl border border-zinc-700 bg-zinc-800 p-4 transition-colors hover:border-zinc-600"
         >
             <div className="flex items-start gap-3">
-                <button 
+                <button
                     type="button"
                     data-testid="task-toggle-complete-button"
-                    className={`mt-0.5 h-4 w-4 flex-shrink-0 rounded border transition-colors ${
+                    onClick={handleToggleComplete}
+                    className={`mt-0.5 h-4 w-4 flex-shrink-0 cursor-pointer rounded border transition-colors ${
                         task.completed
                         ? "border-zinc-400 bg-zinc-400"
                         : "border-zinc-500 bg-transparent hover:border-zinc-300"
                     }`}
-                    onClick={handleToggleComplete}
                     aria-label="Toggle completed"
                 />
                 <div className="min-w-0 flex-1">
@@ -151,19 +194,28 @@ export function TaskItem({ task } : { task: Task }) {
                     type="button"
                     data-testid="task-edit-button"
                     onClick={() => setIsEditing(true)}
-                    className="text-xs text-zinc-400 hover:text-zinc-200"
+                    className="cursor-pointer rounded-lg border border-zinc-600 px-3 py-1 text-xs text-zinc-300 hover:bg-zinc-700"
                 >
                     Edit
                 </button>
                 <button
                     type="button"
                     data-testid="task-delete-button"
-                    onClick={handleDelete}
-                    className="text-xs text-zinc-400 hover:text-red-400"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="cursor-pointer rounded-lg border border-red-900/50 px-3 py-1 text-xs text-red-400/90 hover:bg-red-950/40 hover:text-red-300"
                 >
                     Delete
-                </button>          
+                </button>
             </div>
         </div>
-    )
+        
+        {showDeleteConfirm && (
+            <DeleteConfirmModal
+            taskTitle={task.title}
+            onConfirm={handleDelete}
+            onCancel={() => setShowDeleteConfirm(false)}
+            />
+        )}
+        </>
+    );
 };

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export function CreateTaskForm() {
 
     const router = useRouter();
+    const formRef = useRef<HTMLFormElement>(null);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [isExpanded, setIsExpanded] = useState(false);
@@ -18,6 +19,31 @@ export function CreateTaskForm() {
         setError("");
         setIsExpanded(false);
     };
+
+    useEffect(() => {
+        
+        if (!isExpanded) return;
+
+        function handleClickOutside(event: MouseEvent) {
+            if (formRef.current && !formRef.current.contains(event.target as Node)) {
+                resetAndCollapse();
+            };
+        };
+
+        function handleEscape(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+            resetAndCollapse();
+            };
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleEscape);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleEscape);
+        };
+    }, [isExpanded]);
 
     const handleSubmit = async (e: React.FormEvent) => {
 
@@ -52,6 +78,7 @@ export function CreateTaskForm() {
 
     return (
         <form
+            ref={formRef}
             data-testid="create-task-form"
             onSubmit={handleSubmit}
             className="mx-auto mb-8 w-full max-w-xl rounded-xl border border-zinc-700 bg-zinc-800 p-3 transition-colors focus-within:border-zinc-500"
@@ -87,7 +114,7 @@ export function CreateTaskForm() {
                             type="button"
                             data-testid="create-task-cancel-button"
                             onClick={resetAndCollapse}
-                            className="rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"
+                            className="cursor-pointer rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200"
                         >
                             Cancel
                         </button>
@@ -95,7 +122,7 @@ export function CreateTaskForm() {
                             type="submit"
                             data-testid="create-task-submit-button"
                             disabled={isSubmitting}
-                            className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-100 hover:bg-zinc-700 disabled:opacity-60"
+                            className="cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-100 hover:bg-zinc-700 disabled:opacity-60"
                         >
                             {isSubmitting ? "Adding..." : "Done"}
                         </button>
