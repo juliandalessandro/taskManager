@@ -4,14 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const taskSchema = z.object({
-    title: z.string().min(1, "Title is required").optional(),
+    title: z.string().trim().min(1, "Title is required").optional(),
     description: z.string().optional().nullable(),
     completed: z.boolean().optional(),
     dueDate: z.string().datetime().optional().nullable(),
 }).refine(
-        (data) => Object.keys(data).length > 0,
-        "At least one field is required"
-    );
+    (data) => Object.keys(data).length > 0,
+    "At least one field is required"
+);
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
     

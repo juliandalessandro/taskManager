@@ -56,7 +56,7 @@ export function Navbar({ username }: { username: string }) {
                         <button
                         data-testid="navbar-logout-button"
                         onClick={handleLogout}
-                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50"
+                        className="cursor-pointer w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50"
                         >
                         Log out
                         </button>
