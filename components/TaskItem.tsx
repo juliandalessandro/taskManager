@@ -111,6 +111,7 @@ export function TaskItem({ task } : { task: Task }) {
             <div
                 ref={editRef}
                 data-testid="task-item"
+                data-task-title={task.title}
                 className="mb-4 break-inside-avoid rounded-xl border border-zinc-700 bg-zinc-800 p-4"
             >
                 <input
@@ -154,6 +155,7 @@ export function TaskItem({ task } : { task: Task }) {
         <>
         <div
             data-testid="task-item"
+            data-task-title={task.title}
             className="group relative mb-4 break-inside-avoid rounded-xl border border-zinc-700 bg-zinc-800 p-4 transition-colors hover:border-zinc-600"
         >
             <div className="flex items-start gap-3">
@@ -171,7 +173,7 @@ export function TaskItem({ task } : { task: Task }) {
                 <div className="min-w-0 flex-1">
                     <h3
                         data-testid="task-title"
-                        className={`break-words font-medium text-zinc-100 ${
+                        className={`break-words text-base font-semibold text-zinc-100 ${
                             task.completed ? "text-zinc-500 line-through" : ""
                         }`}
                     >

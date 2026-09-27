@@ -85,18 +85,18 @@ export function CreateTaskForm() {
         >
             <input
                 data-testid="create-task-title-input"
-                placeholder="Take a note..."
+                placeholder={isExpanded ? "Title" : "Take a note..."}
                 value={title}
                 onFocus={() => setIsExpanded(true)}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-500"
+                className="w-full bg-transparent text-base font-semibold text-zinc-100 outline-none placeholder:text-zinc-500"
             />
 
             {isExpanded && (
                 <>
                     <textarea
                         data-testid="create-task-description-input"
-                        placeholder="Description (optional)"
+                        placeholder="Description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={2}
@@ -121,8 +121,8 @@ export function CreateTaskForm() {
                         <button
                             type="submit"
                             data-testid="create-task-submit-button"
-                            disabled={isSubmitting}
-                            className="cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-100 hover:bg-zinc-700 disabled:opacity-60"
+                            disabled={isSubmitting || !title.trim()}
+                            className="cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-100 hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
                         >
                             {isSubmitting ? "Adding..." : "Done"}
                         </button>

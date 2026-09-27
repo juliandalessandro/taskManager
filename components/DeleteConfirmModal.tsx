@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface DeleteConfirmModalProps {
     taskTitle: string;
     onConfirm: () => void;
@@ -7,6 +9,17 @@ interface DeleteConfirmModalProps {
 }
 
 export function DeleteConfirmModal({ taskTitle, onConfirm, onCancel}: DeleteConfirmModalProps) {
+
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleConfirm = async () => {
+        setIsDeleting(true);
+        try {
+            await onConfirm();
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return (
 
@@ -32,17 +45,19 @@ export function DeleteConfirmModal({ taskTitle, onConfirm, onCancel}: DeleteConf
                         type="button"
                         data-testid="cancel-delete-button"
                         onClick={onCancel}
-                        className="cursor-pointer rounded-lg border border-zinc-600 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-700"
+                        disabled={isDeleting}
+                        className="cursor-pointer rounded-lg border border-zinc-600 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         Cancel
                     </button>
                     <button
                         type="button"
                         data-testid="confirm-delete-button"
-                        onClick={onConfirm}
-                        className="cursor-pointer rounded-lg border border-red-900/50 px-3 py-1.5 text-sm text-red-400/90 hover:bg-red-950/40 hover:text-red-300"
+                        onClick={handleConfirm}
+                        disabled={isDeleting}
+                        className="cursor-pointer rounded-lg border border-red-900/50 px-3 py-1.5 text-sm text-red-400/90 hover:bg-red-950/40 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
                     >
-                        Delete
+                        {isDeleting ? "Deleting..." : "Delete"}
                     </button>
                 </div>
             </div>

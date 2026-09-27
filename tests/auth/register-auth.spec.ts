@@ -14,6 +14,15 @@ test.beforeEach(async ({ page }) => {
 
 test.describe("Successful Register Cases", () => {
 
+    let createdUsername: string | null = null;
+
+    test.afterEach(async () => {
+        if (createdUsername) {
+            await prisma.user.delete({ where: { username: createdUsername } }).catch(() => {});
+            createdUsername = null;
+        };
+    });
+
     test("with unique user", async ({ page }) => {
 
         const newUser = generateUniqueUser();
