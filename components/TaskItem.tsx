@@ -118,7 +118,7 @@ export function TaskItem({ task } : { task: Task }) {
                     data-testid="task-edit-title-input"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-transparent text-sm font-medium text-zinc-100 outline-none"
+                    className="w-full bg-transparent text-base font-semibold text-zinc-100 outline-none"
                     autoFocus
                 />
                 <textarea 
