@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const taskSchema = z.object({
-    title: z.string().trim().min(1, "Title is required").optional(),
+    title: z.string().trim().optional(),
     description: z.string().optional().nullable(),
     completed: z.boolean().optional(),
     dueDate: z.string().datetime().optional().nullable(),

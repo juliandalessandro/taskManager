@@ -4,11 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const taskSchema = z.object({
-    title: z.string().trim().min(1, "Title is required"),
+    title: z.string().trim().optional().default(""),
     description: z.string().optional(),
     completed: z.boolean().optional(),
-    dueDate: z.string().datetime().optional().nullable(),
-})
+    isChecklist: z.boolean().optional(),
+});
 
 export async function GET() {
     
@@ -21,6 +21,11 @@ export async function GET() {
     const tasks = await prisma.task.findMany({
         where: { userId: Number(session.user.id) },
         orderBy: { createdAt: "desc" },
+        include: {
+            items: {
+                orderBy: { createdAt: "asc" },
+            },
+        },
     });
 
     return NextResponse.json(tasks, { status: 200 });
@@ -49,7 +54,7 @@ export async function POST(request: Request) {
             title: parsed.data.title,
             description: parsed.data.description,
             completed: parsed.data.completed ?? false,
-            dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
+            isChecklist: parsed.data.isChecklist ?? false,
             userId: Number(session.user.id),
         },
     });

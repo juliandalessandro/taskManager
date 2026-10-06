@@ -7,14 +7,27 @@ import { CreateTaskForm } from "@/components/CreateTaskForm";
 
 export default async function TasksPage() {
   const session = await auth();
+  
   if (!session?.user) {
     redirect("/login");
-  }
+  };
 
-  const tasks = await prisma.task.findMany({
+  const tasksFromDB = await prisma.task.findMany({
     where: { userId: Number(session.user.id) },
     orderBy: { createdAt: "desc" },
+    include: {
+      items: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
   });
+
+  const tasks = tasksFromDB.map((task) => ({
+    ...task,
+    createdAt: task.createdAt.toISOString(),
+    dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+    items: task.items,
+  }));
 
   return (
     <div className="min-h-screen bg-zinc-900">
