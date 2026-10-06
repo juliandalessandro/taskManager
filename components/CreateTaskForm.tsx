@@ -165,9 +165,9 @@ export function CreateTaskForm() {
             )}
 
             {isChecklistMode && (
-                <div data-testid="create-task-items-list" className="mt-2 flex flex-col gap-1.5">
+                <div data-testid="create-task-items-list" className="mt-2 flex flex-col gap-1.5 pr-4">
                     {items.map((item, index) => (
-                        <div key={index} className="flex items-center gap-2">
+                        <div key={index} className="flex items-center gap-2 py-1">
                         <div className="h-3.5 w-3.5 flex-shrink-0 rounded border border-zinc-500" />
                             <input
                                 ref={(el) => { itemRefs.current[index] = el; }}
@@ -181,21 +181,29 @@ export function CreateTaskForm() {
                                         addItemAfter(index);
                                     };
                                 }}
-                                className="w-full mt-2 bg-transparent text-sm text-zinc-200 outline-none placeholder:text-zinc-400"
+                                className="w-full bg-transparent text-sm text-zinc-200 outline-none placeholder:text-zinc-400"
                             />
                             {items.length > 1 && (
                                 <button
-                                    type="button"
-                                    data-testid={`create-task-item-remove-${index}`}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeItemRow(index);
-                                    }}
-                                    aria-label="Remove item"
-                                    className="cursor-pointer text-zinc-500 hover:text-zinc-300"
-                                >
-                                    ×
-                                </button>
+    type="button"
+    data-testid={`edit-task-item-remove-${index}`}
+    onClick={() => removeItemRow(index)}
+    aria-label="Remove item"
+    className="cursor-pointer text-zinc-500 hover:text-zinc-300"
+>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+    >
+        <line x1="6" y1="6" x2="18" y2="18" />
+        <line x1="18" y1="6" x2="6" y2="18" />
+    </svg>
+</button>
                             )}
                         </div>
                     ))}

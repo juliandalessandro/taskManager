@@ -284,9 +284,9 @@ export function TaskItem({ task } : { task: Task }) {
                         autoFocus
                     />
                     {task.isChecklist === true ? (
-                        <div data-testid="edit-task-items-list" className="mt-2 max-h-[60vh] overflow-y-auto pr-2">
+                        <div data-testid="edit-task-items-list" className="mt-2 max-h-[60vh] overflow-y-auto pr-4">
                             {items.map((item, index) => (
-                                <div key={index} className="flex items-center gap-2">
+                                <div key={index} className="flex items-center gap-2 py-2">
                                     <button
                                         type="button"
                                         data-testid={`edit-task-item-toggle-${index}`}
@@ -324,7 +324,18 @@ export function TaskItem({ task } : { task: Task }) {
                                         aria-label="Remove item"
                                         className="cursor-pointer text-zinc-500 hover:text-zinc-300"
                                     >
-                                        ×
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-5 w-5"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                        >
+                                            <line x1="6" y1="6" x2="18" y2="18" />
+                                            <line x1="18" y1="6" x2="6" y2="18" />
+                                        </svg>
                                     </button>
                                 </div>
                             ))}
