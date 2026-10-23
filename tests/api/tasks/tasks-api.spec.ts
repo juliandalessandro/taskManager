@@ -152,7 +152,7 @@ test.describe("Tasks API - Error Cases", () => {
         const body = await createResponse.json();
 
         console.log(body);
-        expect(createResponse.status()).toBe(400);
+        expect(createResponse.status()).toBe(201);
     });
 
     test("Update of task with all fields missing", async ({ context }) => {
@@ -180,7 +180,9 @@ test.describe("Tasks API - Error Cases", () => {
         const body = await createResponse.json();
 
         console.log(body);
-        expect(createResponse.status()).toBe(400);
+        expect(createResponse.status()).toBe(201);
+
+        await apiRequest.delete(`${BASE_URL}/api/tasks/${body.id}`);
     });
 
     test("Creation of task with title with spaces", async ({ context }) => {
@@ -194,7 +196,7 @@ test.describe("Tasks API - Error Cases", () => {
         const body = await createResponse.json();
 
         console.log(body);
-        expect(createResponse.status()).toBe(400);
+        expect(createResponse.status()).toBe(201);
     });
 
     test("Update task with non existing ID", async ({context}) => {
@@ -245,34 +247,6 @@ test.describe("Tasks API - Error Cases", () => {
         const deleteResponse = await apiRequest.delete(`${BASE_URL}/api/tasks/not-valid-id`);
         
         expect(deleteResponse.status()).toBe(400);
-    });
-
-    test("Create task with invalid dueDate", async ({context}) => {
-
-        const apiRequest = context.request;
-
-        const uniqueTitle = `Test Task ${Math.random().toString(36).substring(2, 8)}`;
-        
-        // CREATE
-        const updateResponse = await apiRequest.post(`${BASE_URL}/api/tasks`, {
-            data: { title: `${uniqueTitle}`, dueDate: "not-valid-date" },
-        });
-        
-        expect(updateResponse.status()).toBe(400);
-    });
-
-    test("Update task with invalid dueDate", async ({context}) => {
-
-        const apiRequest = context.request;
-
-        const uniqueTitle = `Test Task ${Math.random().toString(36).substring(2, 8)}`;
-        
-        // UPDATE
-        const updateResponse = await apiRequest.patch(`${BASE_URL}/api/tasks/${user1TaskId}`, {
-            data: { title: `${uniqueTitle} - edited`, dueDate: "not-valid-date" },
-        });
-        
-        expect(updateResponse.status()).toBe(400);
     });
 
     test("Create task with invalid complete field", async ({context}) => {

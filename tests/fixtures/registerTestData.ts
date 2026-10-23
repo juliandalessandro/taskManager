@@ -1,12 +1,12 @@
 export function generateUniqueUser() {
     
     const suffix = Math.random().toString(36).substring(2, 8);
-
+    
     return {
-        username: `user${suffix}`,
-        email: `user${suffix}@app.com`,
-        password: `user${suffix}pwd`,
-    }
+        username: `e2e-${suffix}`,
+        email: `e2e-${suffix}@app.com`,
+        password: `e2e-${suffix}pwd`,
+    };
 };
 
 export const REGISTER_MESSAGES = {

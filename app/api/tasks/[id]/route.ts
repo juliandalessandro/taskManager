@@ -7,7 +7,6 @@ const taskSchema = z.object({
     title: z.string().trim().optional(),
     description: z.string().optional().nullable(),
     completed: z.boolean().optional(),
-    dueDate: z.string().datetime().optional().nullable(),
 }).refine(
     (data) => Object.keys(data).length > 0,
     "At least one field is required"
@@ -45,12 +44,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         },
         data: {
             ...parsed.data,
-            dueDate:
-                parsed.data.dueDate !== undefined
-                    ? parsed.data.dueDate
-                        ? new Date(parsed.data.dueDate)
-                        : null
-                    : undefined,
         }
     });
 

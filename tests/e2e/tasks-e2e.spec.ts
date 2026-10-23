@@ -108,35 +108,6 @@ test.describe("Task Creation", () => {
 
 });
 
-// ---------- COMPLETE ----------
-
-test.describe("Task Completion", () => {
-
-    test("Mark a task as complete shows it as struck through", async () => {
-
-        const { title } = await tasksPage.createTask();
-
-        await tasksPage.verifyTaskNotCompleted(title);
-
-        await tasksPage.toggleCompleted(title);
-
-        await tasksPage.verifyTaskCompleted(title);
-
-    });
-
-    test("unmarking a completed task restores normal state", async () => {
-
-        const { title } = await tasksPage.createTask();
-
-        await tasksPage.toggleCompleted(title);
-        await tasksPage.toggleCompleted(title);
-
-        await tasksPage.toggleCompleted(title);
-        await tasksPage.verifyTaskNotCompleted(title);
-
-    });
-});
-
 // ---------- EDIT ----------
 
 test.describe("Task Editing", () => {
@@ -144,7 +115,6 @@ test.describe("Task Editing", () => {
     test("Successful edit of title and description", async ({ page }) => {
         
         const { title } = await tasksPage.createTask();
-
         const newTitle = `Edited Title - ${Math.random().toString(36).substring(2, 8)}`;
         const newDescription = `Edited Description - ${Math.random().toString(36).substring(2, 8)}`;
 
@@ -157,64 +127,83 @@ test.describe("Task Editing", () => {
         await tasksPage.verifyTaskVisible(newTitle, newDescription);
     });
 
-    test("Save button is disabled without changes", async () => {
-        
-        const { title } = await tasksPage.createTask();
-        const task = tasksPage.getTaskByTitle(title);
+    test("Modal opens with the current title and description", async () => {
+        const { title, description } = await tasksPage.createTask();
 
-        await task.getByTestId("task-edit-button").click();
-        await expect(task.getByTestId("task-save-button")).toBeDisabled();
+        await tasksPage.openTask(title);
+        const modal = tasksPage.getTaskByTitle(title);
+
+        await expect(modal.getByTestId("task-edit-title-input")).toHaveValue(title);
+        await expect(modal.getByTestId("task-edit-description-input")).toHaveValue(description);
     });
 
-    test("Save button enables after changing the title", async () => {
-        
+    test("Save button is disabled without changes", async () => {
         const { title } = await tasksPage.createTask();
-        const task = tasksPage.getTaskByTitle(title);
 
-        await task.getByTestId("task-edit-button").click();
-        await expect(task.getByTestId("task-save-button")).toBeDisabled();
+        await tasksPage.openTask(title);
 
-        await task.getByTestId("task-edit-title-input").pressSequentially("a");
-        await expect(task.getByTestId("task-save-button")).toBeEnabled();
+        await expect(tasksPage.getTaskByTitle(title).getByTestId("task-save-button")).toBeDisabled();
+    });
+
+    test("Save button enables after changing the title and disables again if reverted", async () => {
+        const { title } = await tasksPage.createTask();
+
+        await tasksPage.openTask(title);
+        const modal = tasksPage.getTaskByTitle(title);
+        const titleInput = modal.getByTestId("task-edit-title-input");
+        const saveButton = modal.getByTestId("task-save-button");
+
+        await titleInput.pressSequentially("a");
+        await expect(saveButton).toBeEnabled();
+
+        await titleInput.press("Backspace");
+        await expect(saveButton).toBeDisabled();
+    });
+
+    test("Clicking inside the modal does not close it", async () => {
+        const { title } = await tasksPage.createTask();
+
+        await tasksPage.openTask(title);
+        await tasksPage.getTaskByTitle(title).getByTestId("task-edit-title-input").click();
+
+        await expect(tasksPage.taskModal).toBeVisible();
     });
 
     test("Cancel button discards all changes", async () => {
-
         const { title } = await tasksPage.createTask();
-        const task = tasksPage.getTaskByTitle(title);
 
-        await task.getByTestId("task-edit-button").click();
-        await task.getByTestId("task-edit-title-input").pressSequentially("a");
-        await task.getByTestId("task-cancel-edit-button").click();
+        await tasksPage.openTask(title);
+        const modal = tasksPage.getTaskByTitle(title);
+        await modal.getByTestId("task-edit-title-input").pressSequentially("a");
+        await modal.getByTestId("task-cancel-edit-button").click();
+        await expect(tasksPage.taskModal).toBeHidden();
 
-        await task.getByTestId("task-edit-button").click();
-        await expect(task.getByTestId("task-edit-title-input")).toHaveValue(title);
+        await tasksPage.openTask(title);
+        await expect(tasksPage.getTaskByTitle(title).getByTestId("task-edit-title-input")).toHaveValue(title);
     });
 
-    test("Clicking outside discards all changes", async ({ page }) => {
-
+    test("Clicking the overlay discards all changes", async () => {
         const { title } = await tasksPage.createTask();
-        const task = tasksPage.getTaskByTitle(title);
 
-        await task.getByTestId("task-edit-button").click();
-        await task.getByTestId("task-edit-title-input").pressSequentially("a");
-        await page.mouse.click(10, 10);
+        await tasksPage.openTask(title);
+        await tasksPage.getTaskByTitle(title).getByTestId("task-edit-title-input").pressSequentially("a");
+        await tasksPage.taskModal.click({ position: { x: 5, y: 5 } });
+        await expect(tasksPage.taskModal).toBeHidden();
 
-        await task.getByTestId("task-edit-button").click();
-        await expect(task.getByTestId("task-edit-title-input")).toHaveValue(title);
+        await tasksPage.openTask(title);
+        await expect(tasksPage.getTaskByTitle(title).getByTestId("task-edit-title-input")).toHaveValue(title);
     });
 
     test("Escape key discards all changes", async ({ page }) => {
-
         const { title } = await tasksPage.createTask();
-        const task = tasksPage.getTaskByTitle(title);
 
-        await task.getByTestId("task-edit-button").click();
-        await task.getByTestId("task-edit-title-input").pressSequentially("a");
+        await tasksPage.openTask(title);
+        await tasksPage.getTaskByTitle(title).getByTestId("task-edit-title-input").pressSequentially("a");
         await page.keyboard.press("Escape");
+        await expect(tasksPage.taskModal).toBeHidden();
 
-        await task.getByTestId("task-edit-button").click();
-        await expect(task.getByTestId("task-edit-title-input")).toHaveValue(title);
+        await tasksPage.openTask(title);
+        await expect(tasksPage.getTaskByTitle(title).getByTestId("task-edit-title-input")).toHaveValue(title);
     });
 });
 

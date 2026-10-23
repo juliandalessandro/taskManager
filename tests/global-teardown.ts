@@ -12,10 +12,12 @@ async function globalTeardown() {
         },
     });
 
+    await prisma.task.deleteMany({
+        where: { user: { username: { startsWith: 'e2e-' } } },
+    });
+    
     await prisma.user.deleteMany({
-        where: {
-        username: { startsWith: 'user_' },
-        },
+        where: { username: { startsWith: 'e2e-' } },
     });
 
   await prisma.$disconnect();

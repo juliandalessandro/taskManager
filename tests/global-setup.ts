@@ -26,10 +26,16 @@ async function globalSetup() {
     const user1Task = await prisma.task.create({
         data: { title: 'GLOBAL_SETUP_USER1_TASK', userId: user.id },
     });
+    const user1Checklist = await prisma.task.create({
+        data: { title: 'GLOBAL_SETUP_USER1_CHECKLIST', userId: user.id },
+    });
+    const user1Item = await prisma.checklistItem.create({
+        data: { text: 'GLOBAL_SETUP_USER1_ITEM', taskId: user1Checklist.id },
+    });
 
     // 3. Save user1's task ID
     fs.mkdirSync(path.dirname(userTaskFile), { recursive: true });
-    fs.writeFileSync(userTaskFile, JSON.stringify({ taskId: user1Task.id }));
+    fs.writeFileSync(userTaskFile, JSON.stringify({ taskId: user1Task.id, checklistId: user1Checklist.id, itemId: user1Item.id }));
 
     // 4. Verify user2 exists. If not, it will be created
     const hashedPassword2 = await bcrypt.hash('user2pwd', 10);
@@ -43,13 +49,21 @@ async function globalSetup() {
     await prisma.task.deleteMany({
         where: { userId: otherUser.id, title: 'GLOBAL_SETUP_OTHER_USER_TASK' },
     });
+    
     const otherUserTask = await prisma.task.create({
         data: { title: 'GLOBAL_SETUP_OTHER_USER_TASK', userId: otherUser.id },
     });
 
+    const otherUserItem = await prisma.checklistItem.create({
+        data: { text: 'GLOBAL_SETUP_OTHER_USER_ITEM', taskId: otherUserTask.id },
+    });
+
     // 6. Save user2's task ID
     fs.mkdirSync(path.dirname(otherUserTaskFile), { recursive: true });
-    fs.writeFileSync(otherUserTaskFile, JSON.stringify({ taskId: otherUserTask.id }));
+    fs.writeFileSync(
+        otherUserTaskFile,
+        JSON.stringify({ taskId: otherUserTask.id, itemId: otherUserItem.id })
+    );
 
     await prisma.$disconnect();
 

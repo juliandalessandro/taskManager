@@ -10,6 +10,7 @@ export class TasksPage {
     readonly createTaskError: Locator;
     readonly taskList: Locator;
     readonly noTasksMessage: Locator;
+    readonly taskModal: Locator;
     readonly deleteConfirmModal: Locator;
     readonly deleteModalMessage: Locator;
     readonly confirmDeleteButton: Locator;
@@ -26,6 +27,7 @@ export class TasksPage {
         this.createTaskError = page.getByTestId("create-task-error");
         this.taskList = page.getByTestId("task-list");
         this.noTasksMessage = page.getByTestId("no-tasks-message");
+        this.taskModal = page.getByTestId("task-modal-overlay");
         this.deleteConfirmModal = page.getByTestId("delete-confirm-modal");
         this.deleteModalMessage = page.getByTestId("delete-modal-message");
         this.confirmDeleteButton = page.getByTestId("confirm-delete-button");
@@ -36,6 +38,15 @@ export class TasksPage {
 
     async navigateToTasks() {
         await this.page.goto("/tasks");
+    };
+
+    getTaskByTitle(title: string): Locator {
+        return this.page.locator(`[data-testid="task-item"][data-task-title="${title}"]`);
+    }
+
+    async openTask(title: string) {
+        await this.getTaskByTitle(title).getByTestId("task-title").click();
+        await expect(this.taskModal).toBeVisible();
     };
 
     // ---------- CREATE ----------
@@ -64,10 +75,6 @@ export class TasksPage {
 
         if (title) await this.createTaskTitleInput.pressSequentially(title);
         if (description) await this.createTaskDescriptionInput.pressSequentially(description);
-    }
-
-    getTaskByTitle(title: string): Locator {
-        return this.page.locator(`[data-testid="task-item"][data-task-title="${title}"]`);
     }
 
     // ---------- VERIFY ----------
@@ -119,28 +126,28 @@ export class TasksPage {
 
     async editTask(currentTitle: string, newTitle: string, newDescription?: string) {
         
-        const task = this.getTaskByTitle(currentTitle);
-        await task.getByTestId("task-edit-button").click();
+        await this.openTask(currentTitle);
+        const modal = this.getTaskByTitle(currentTitle);
 
-        const titleInput = task.getByTestId("task-edit-title-input");
+        const titleInput = modal.getByTestId("task-edit-title-input");
         await titleInput.clear();
         await titleInput.pressSequentially(newTitle);
 
         if (newDescription !== undefined) {
-            const descInput = task.getByTestId("task-edit-description-input");
+            const descInput = modal.getByTestId("task-edit-description-input");
             await descInput.clear();
             await descInput.pressSequentially(newDescription);
         }
 
-        await task.getByTestId("task-save-button").click();
+        await modal.getByTestId("task-save-button").click();
+        await expect(this.taskModal).toBeHidden();
     };
 
     // ---------- DELETE ----------
 
     async clickDelete(title: string) {
-        const task = await this.getTaskByTitle(title)
-        await task.getByTestId("task-delete-button").click();
-    };
+        await this.getTaskByTitle(title).getByTestId("delete-task-button").click();
+    }
 
     async confirmDelete() {
         await this.confirmDeleteButton.click();
