@@ -8,6 +8,9 @@ export class TasksPage {
     readonly createTaskSubmitButton: Locator;
     readonly createTaskCancelButton: Locator;
     readonly createTaskError: Locator;
+    readonly createChecklistToggle: Locator;
+    readonly createChecklistItemInput: (index: number) => Locator;
+    readonly createChecklistAddItemButton: Locator;
     readonly taskList: Locator;
     readonly noTasksMessage: Locator;
     readonly taskModal: Locator;
@@ -25,6 +28,9 @@ export class TasksPage {
         this.createTaskSubmitButton = page.getByTestId("create-task-submit-button");
         this.createTaskCancelButton = page.getByTestId("create-task-cancel-button");
         this.createTaskError = page.getByTestId("create-task-error");
+        this.createChecklistToggle = page.getByTestId("create-task-checklist-toggle");
+        this.createChecklistItemInput = (index: number) => page.getByTestId(`create-task-item-input-${index}`);
+        this.createChecklistAddItemButton = page.getByTestId("create-task-add-item-button");
         this.taskList = page.getByTestId("task-list");
         this.noTasksMessage = page.getByTestId("no-tasks-message");
         this.taskModal = page.getByTestId("task-modal-overlay");
@@ -75,7 +81,37 @@ export class TasksPage {
 
         if (title) await this.createTaskTitleInput.pressSequentially(title);
         if (description) await this.createTaskDescriptionInput.pressSequentially(description);
-    }
+    };
+
+    // ---------- CREATE CHECKLIST ----------
+
+    async createChecklist(
+        items: string[],
+        title?: string
+    ) {
+        const checklistTitle = title ?? `Checklist ${Math.random().toString(36).substring(2, 8)}`;
+
+        await this.createChecklistToggle.click();
+
+        await this.createTaskTitleInput.fill(checklistTitle);
+
+        for (let i = 0; i < items.length; i++) {
+            const itemInput = this.createChecklistItemInput(i);
+
+            await itemInput.fill(items[i]);
+
+            if (i < items.length - 1) {
+                await itemInput.press("Enter");
+            }
+        }
+
+        await this.createTaskSubmitButton.click();
+
+        return {
+            title: checklistTitle,
+            items,
+        };
+    };
 
     // ---------- VERIFY ----------
 
@@ -101,6 +137,23 @@ export class TasksPage {
         await expect(this.createTaskDescriptionInput).toBeHidden();
     };
 
+    // ---------- VERIFY CHECKLIST ----------
+
+    async verifyChecklistItems(
+        title: string,
+        items: string[]
+    ) {
+        const checklist = this.getTaskByTitle(title);
+
+        await expect(checklist).toBeVisible();
+
+        for (const item of items) {
+            await expect(checklist.getByText(item)).toBeVisible();
+        };
+
+        await expect(checklist.getByTestId("checklist-item")).toHaveCount(items.length);
+    };
+
     // ---------- COMPLETE ----------
 
     async toggleCompleted(title: string) {
@@ -120,6 +173,29 @@ export class TasksPage {
         const taskTitle = await task.getByTestId("task-title");
         
         await expect(taskTitle).not.toHaveClass(/line-through/);
+    };
+
+    // ---------- CHECKLIST ITEM COMPLETION ----------
+
+    async toggleChecklistItem(title: string, itemIndex: number) {
+        const checklist = this.getTaskByTitle(title);
+        const item = checklist.getByTestId("checklist-item").nth(itemIndex);
+
+        await item.getByTestId("checklist-item-toggle").click();
+    };
+
+    async verifyChecklistItemCompleted(title: string, itemIndex: number) {
+        const checklist = this.getTaskByTitle(title);
+        const item = checklist.getByTestId("checklist-item").nth(itemIndex);
+
+        await expect(item.getByText(/.+/)).toHaveClass(/line-through/);
+    };
+
+    async verifyChecklistItemNotCompleted(title: string, itemIndex: number) {
+        const checklist = this.getTaskByTitle(title);
+        const item = checklist.getByTestId("checklist-item").nth(itemIndex);
+
+        await expect(item.getByText(/.+/)).not.toHaveClass(/line-through/);
     };
 
     // ---------- EDIT ----------
